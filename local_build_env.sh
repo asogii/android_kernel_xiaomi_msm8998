@@ -22,8 +22,25 @@ export KCFLAGS="-Wno-error $INJECT_INCLUDES"
 export KCPPFLAGS="$INJECT_INCLUDES" # 有时候预处理器也需要这个参数
 
 kconfig() {
+    # 1. 生成基礎配置
     make vendor/xiaomi/mi8998_defconfig
+    
+    # 2. 合併 chiron 專有機型配置
     scripts/kconfig/merge_config.sh -m .config arch/arm64/configs/vendor/xiaomi/chiron.config
+    
+    echo "--- 正在注入 SukiSU 配置並關閉 KPROBES ---"
+    
+    # 3. 強制開啟 KernelSU
+    echo "CONFIG_KSU=y" >> .config
+    
+    # 4. 強制關閉 KPROBES 及其關聯項 (這是手動 Patch 模式的鐵律，避免音量鍵觸發安全模式)
+    sed -i 's/CONFIG_KPROBES=y/# CONFIG_KPROBES is not set/g' .config
+    sed -i 's/CONFIG_HAVE_KPROBES=y/# CONFIG_HAVE_KPROBES is not set/g' .config
+    sed -i 's/CONFIG_KPROBE_EVENTS=y/# CONFIG_KPROBE_EVENTS is not set/g' .config
+    # 順便把剛才報錯的 SUSFS 也徹底封殺
+    sed -i 's/CONFIG_KSU_SUSFS=y/# CONFIG_KSU_SUSFS is not set/g' .config
+    
+    # 5. 讓內核重新整理並生效配置
     make olddefconfig
 }
 
