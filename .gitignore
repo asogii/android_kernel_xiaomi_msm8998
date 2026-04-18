@@ -123,3 +123,11 @@ android/configs/android-*.cfg
 #Ignoring Android.bp link file
 #
 Android.bp
+
+local_build.log
+build.log
+
+drivers/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S
+drivers/net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S
+
+
