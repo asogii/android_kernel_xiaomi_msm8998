@@ -37,8 +37,6 @@ kconfig() {
     sed -i 's/CONFIG_KPROBES=y/# CONFIG_KPROBES is not set/g' .config
     sed -i 's/CONFIG_HAVE_KPROBES=y/# CONFIG_HAVE_KPROBES is not set/g' .config
     sed -i 's/CONFIG_KPROBE_EVENTS=y/# CONFIG_KPROBE_EVENTS is not set/g' .config
-    # 順便把剛才報錯的 SUSFS 也徹底封殺
-    sed -i 's/CONFIG_KSU_SUSFS=y/# CONFIG_KSU_SUSFS is not set/g' .config
     
     # 5. 讓內核重新整理並生效配置
     make olddefconfig

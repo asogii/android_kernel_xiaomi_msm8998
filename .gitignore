@@ -131,3 +131,5 @@ drivers/net/wireguard/crypto/zinc/chacha20/chacha20-arm64.S
 drivers/net/wireguard/crypto/zinc/poly1305/poly1305-arm64.S
 
 KernelSU
+
+susfs4ksu
