@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PATH="$HOME/aosp-clang/bin:$PATH"
+export PATH="$HOME/toolchains/clang-android/clang-r547379/bin:$PATH"
 export ARCH=arm64
 export SUBARCH=arm64
 export CROSS_COMPILE=aarch64-linux-gnu-
@@ -32,13 +32,12 @@ kconfig() {
     
     # 3. 強制開啟 KernelSU
     echo "CONFIG_KSU=y" >> .config
+    echo "CONFIG_KSU_MANUAL_HOOK=y" >> .config
     
     # 4. 強制關閉 KPROBES 及其關聯項 (這是手動 Patch 模式的鐵律，避免音量鍵觸發安全模式)
     sed -i 's/CONFIG_KPROBES=y/# CONFIG_KPROBES is not set/g' .config
     sed -i 's/CONFIG_HAVE_KPROBES=y/# CONFIG_HAVE_KPROBES is not set/g' .config
     sed -i 's/CONFIG_KPROBE_EVENTS=y/# CONFIG_KPROBE_EVENTS is not set/g' .config
-    # 順便把剛才報錯的 SUSFS 也徹底封殺
-    sed -i 's/CONFIG_KSU_SUSFS=y/# CONFIG_KSU_SUSFS is not set/g' .config
     
     # 5. 讓內核重新整理並生效配置
     make olddefconfig
