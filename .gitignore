@@ -133,4 +133,6 @@ Android.bp
 
 /KernelSU
 /susfs4ksu
+/SukiSU-Ultra
+/ReSukiSU
 
