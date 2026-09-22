@@ -30,16 +30,6 @@ kconfig() {
     # 4. 强制开启 KernelSU 及 SuSFS 全套特性
     scripts/config --file .config -e KSU
 
-    # 解决 Kconfig 单选组冲突：必须先移除单选组内其他选项，再开启 Manual Hook
-    scripts/config --file .config -d KSU_KPROBE_HOOK
-    scripts/config --file .config -d KSU_TRACEPOINT_HOOK
-    scripts/config --file .config -e KSU_MANUAL_HOOK
-
-    # 关闭自动 LSM 钩子，强制使用手动代码插入
-    scripts/config --file .config -d KSU_MANUAL_HOOK_AUTO_SETUID_HOOK
-    scripts/config --file .config -d KSU_MANUAL_HOOK_AUTO_INITRC_HOOK
-    scripts/config --file .config -d KSU_MANUAL_HOOK_AUTO_INPUT_HOOK
-
     # 开启 SuSFS 各项功能
     scripts/config --file .config -e KSU_SUSFS
     scripts/config --file .config -e KSU_SUSFS_SUS_PATH
@@ -53,6 +43,7 @@ kconfig() {
     scripts/config --file .config -e KSU_SUSFS_SUS_MAP
 
     scripts/config --file .config -e THREAD_INFO_IN_TASK
+    scripts/config --file .config -e OVERLAY_FS
 
     # 5. 強制關閉 KPROBES 及其關聯項 (手動 Patch 模式的鐵律)
     scripts/config --file .config -d KPROBES

@@ -115,7 +115,7 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 				susfs_sus_kstat_spoof_inotify_fdinfo(&ino, &dev);
 				seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
 						inode_mark->wd, ino, dev,
-						mask, mark->ignored_mask);
+						mark->mask, mark->ignored_mask);
 				show_mark_fhandle(m, inode);
 				seq_putc(m, '\n');
 				iput(inode);
@@ -145,7 +145,7 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 				}
 				seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:%x ",
 							inode_mark->wd, d_backing_inode(path.dentry)->i_ino, d_backing_inode(path.dentry)->i_sb->s_dev,
-							mask, mark->ignored_mask);
+							mark->mask, mark->ignored_mask);
 				show_mark_fhandle(m, d_backing_inode(path.dentry));
 				seq_putc(m, '\n');
 				path_put(&path);
