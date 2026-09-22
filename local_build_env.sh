@@ -21,43 +21,47 @@ kconfig() {
     # 2. 合并 chiron 专有机型配置
     scripts/kconfig/merge_config.sh -m .config arch/arm64/configs/vendor/xiaomi/chiron.config
 
-    echo "--- 正在注入 SukiSU/SuSFS 配置並修復編譯選項 ---"
+    echo "--- 正在使用 scripts/config 注入配置 ---"
 
     # 3. 强制关闭导致 4.4 链接器报错的 32位 VDSO
-    sed -i 's/CONFIG_COMPAT_VDSO=y/# CONFIG_COMPAT_VDSO is not set/g' .config
-    sed -i 's/CONFIG_VDSO32=y/# CONFIG_VDSO32 is not set/g' .config
-    echo "CONFIG_COMPAT_VDSO=n" >> .config
-    echo "CONFIG_VDSO32=n" >> .config
+    scripts/config --file .config -d COMPAT_VDSO
+    scripts/config --file .config -d VDSO32
 
     # 4. 强制开启 KernelSU 及 SuSFS 全套特性
-    cat <<EOF >> .config
-CONFIG_KSU=y
-CONFIG_KSU_MANUAL_HOOK=y
-<<<<<<< HEAD
-CONFIG_KSU_MANUAL_HOOK_AUTO_SETUID_HOOK=n
-CONFIG_KSU_MANUAL_HOOK_AUTO_INITRC_HOOK=n
-CONFIG_KSU_MANUAL_HOOK_AUTO_INPUT_HOOK=n
-CONFIG_KSU_SUSFS=y
-CONFIG_KSU_SUSFS_SUS_PATH=y
-CONFIG_KSU_SUSFS_SUS_MOUNT=y
-CONFIG_KSU_SUSFS_SUS_KSTAT=y
-CONFIG_KSU_SUSFS_SPOOF_UNAME=y
-CONFIG_KSU_SUSFS_ENABLE_LOG=y
-CONFIG_KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS=y
-CONFIG_KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG=y
-CONFIG_KSU_SUSFS_OPEN_REDIRECT=y
-CONFIG_KSU_SUSFS_SUS_MAP=y
-CONFIG_THREAD_INFO_IN_TASK=y
-EOF
+    scripts/config --file .config -e KSU
+
+    # 解决 Kconfig 单选组冲突：必须先移除单选组内其他选项，再开启 Manual Hook
+    scripts/config --file .config -d KSU_KPROBE_HOOK
+    scripts/config --file .config -d KSU_TRACEPOINT_HOOK
+    scripts/config --file .config -e KSU_MANUAL_HOOK
+
+    # 关闭自动 LSM 钩子，强制使用手动代码插入
+    scripts/config --file .config -d KSU_MANUAL_HOOK_AUTO_SETUID_HOOK
+    scripts/config --file .config -d KSU_MANUAL_HOOK_AUTO_INITRC_HOOK
+    scripts/config --file .config -d KSU_MANUAL_HOOK_AUTO_INPUT_HOOK
+
+    # 开启 SuSFS 各项功能
+    scripts/config --file .config -e KSU_SUSFS
+    scripts/config --file .config -e KSU_SUSFS_SUS_PATH
+    scripts/config --file .config -e KSU_SUSFS_SUS_MOUNT
+    scripts/config --file .config -e KSU_SUSFS_SUS_KSTAT
+    scripts/config --file .config -e KSU_SUSFS_SPOOF_UNAME
+    scripts/config --file .config -e KSU_SUSFS_ENABLE_LOG
+    scripts/config --file .config -e KSU_SUSFS_HIDE_KSU_SUSFS_SYMBOLS
+    scripts/config --file .config -e KSU_SUSFS_SPOOF_CMDLINE_OR_BOOTCONFIG
+    scripts/config --file .config -e KSU_SUSFS_OPEN_REDIRECT
+    scripts/config --file .config -e KSU_SUSFS_SUS_MAP
+
+    scripts/config --file .config -e THREAD_INFO_IN_TASK
 
     # 5. 強制關閉 KPROBES 及其關聯項 (手動 Patch 模式的鐵律)
-    sed -i 's/CONFIG_KPROBES=y/# CONFIG_KPROBES is not set/g' .config
-    sed -i 's/CONFIG_HAVE_KPROBES=y/# CONFIG_HAVE_KPROBES is not set/g' .config
-    sed -i 's/CONFIG_KPROBE_EVENTS=y/# CONFIG_KPROBE_EVENTS is not set/g' .config
+    scripts/config --file .config -d KPROBES
+    scripts/config --file .config -d HAVE_KPROBES
+    scripts/config --file .config -d KPROBE_EVENTS
 
     # 6. 关闭 LTO (旧版内核开启 LTO 极易产生链接错误)
-    sed -i 's/CONFIG_LTO_CLANG=y/# CONFIG_LTO_CLANG is not set/g' .config
-    echo "CONFIG_LTO_NONE=y" >> .config
+    scripts/config --file .config -d LTO_CLANG
+    scripts/config --file .config -e LTO_NONE
 
     # 7. 讓內核重新整理並生效配置
     make olddefconfig
