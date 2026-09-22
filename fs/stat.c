@@ -149,10 +149,8 @@ int vfs_fstatat(int dfd, const char __user *filename, struct kstat *stat,
 	unsigned int lookup_flags = 0;
 #ifdef CONFIG_KSU_SUSFS
 	struct filename *fname = NULL;
-	extern int filename_lookup(int dfd, struct filename *name, unsigned flags,
-					struct path *path, struct path *root);
+	extern int filename_lookup(int dfd, struct filename *name, unsigned flags,                                        struct path *path, struct path *root);
 #endif
-
 
 	if ((flag & ~(AT_SYMLINK_NOFOLLOW | AT_NO_AUTOMOUNT |
 		      AT_EMPTY_PATH)) != 0)

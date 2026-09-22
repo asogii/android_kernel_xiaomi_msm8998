@@ -37,24 +37,6 @@ extern struct cred *ksu_cred;
 extern int susfs_get_non_sus_mnt_id_from_mnt(struct mount *orig_mnt);
 extern struct vfsmount *susfs_get_non_sus_vfsmnt_from_vfsmnt(struct vfsmount *vfsmnt);
 
-/*
- * kvmalloc() was introduced in v4.12. 4.4 / 4.9 do not have it, but they do
- * have kvfree(), so only kvmalloc() needs a fallback here.
- */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0)
-static inline void *kvmalloc(size_t size, gfp_t flags)
-{
-	void *p;
-
-	p = kmalloc(size, flags);
-	if (!p)
-		p = vmalloc(size);
-	if (p && (flags & __GFP_ZERO))
-		memset(p, 0, size);
-	return p;
-}
-#endif
-
 #ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
 DEFINE_STATIC_KEY_TRUE(susfs_is_log_enabled);
 #define SUSFS_LOGI(fmt, ...) if (static_branch_likely(&susfs_is_log_enabled)) pr_info("susfs:[%u][%d][%s] " fmt, current_uid().val, current->pid, __func__, ##__VA_ARGS__)
