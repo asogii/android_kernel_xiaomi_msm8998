@@ -126,7 +126,7 @@ Android.bp
 
 /KernelSU
 /SukiSU-Ultra
-/ReSukiSU
+/BakaSU
 /build.log
 /susfs4ksu
 
